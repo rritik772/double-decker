@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 
-const bodyParser = require('body-parser');
+// const bodyParser = require('body-parser');
 const fileUpload = require('express-fileupload');
 
 const pool = require("./db");
@@ -12,7 +12,7 @@ const port = 5000;
 app.use(fileUpload());
 app.use(express.urlencoded({
     extended: true,
-    limit: '25mb'
+    limit: '10mb'
 }));
 app.use(cors());
 app.use(express.json())
@@ -29,8 +29,8 @@ app.post("/add-user", async (req, res) => {
             profilePicture = null;
         }
 
-        const user = await (await pool).query('insert into users(first_name, last_name, email, password, username, profile_pic, date_birth, date_created, date_modified, passphrase) values(?,?,?,?,?,?,?,?,?,?)', [firstName, secondName, email, password, username, profilePicture, dateBirth, dateCreated, dateModified, passphrase]);
-        res.status(200).json("done");
+        const user = await (await pool).query('insert into users(first_name, last_name, email, password, username, profile_pic, date_birth, date_created, date_modified, passphrase) values(?,?,?,?,?,?,?,?,?,?) returning *', [firstName, secondName, email, password, username, profilePicture, dateBirth, dateCreated, dateModified, passphrase]);
+        res.status(200).json(user[0]);
         
     }catch(err){
         console.log(err);
@@ -90,14 +90,17 @@ app.post('/add-post', async (req, res) => {
     }
 })
 
-app.get("/get-post-by-user_id/:user_id/:pageNo/:category", async (req, res) => {
+app.get("/get-post-by-user_id/:user_id/:pageNo/:category/:term", async (req, res) => {
     try {
         const {user_id, pageNo, category} = req.params;
         const start = (pageNo - 1) * 10;
+        let {term} = req.params;
+
+        term = (term === "null")?"":term;
 
         let allPosts = null;
-        if (category === "All") allPosts = await (await pool).query('select * from posts where user_id = ? order by date_created desc limit ?, 10', [user_id, start]);
-        else allPosts = await (await pool).query('select * from posts where user_id = ? and category = ? order by date_created desc limit ?, 10', [user_id, category, start]);
+        if (category === "All") allPosts = await (await pool).query('select * from posts where user_id = ? and title like ? order by date_created desc limit ?, 10', [user_id, `%${term}%`, start]);
+        else allPosts = await (await pool).query('select * from posts where user_id = ? and category = ? order title like ? by date_created desc limit ?, 10', [user_id, `%${term}%`, category, start]);
 
         const postData = []
 
@@ -127,14 +130,19 @@ app.get("/get-post-by-user_id/:user_id/:pageNo/:category", async (req, res) => {
     }
 })
 
-app.get("/get-all-posts/:request_user_id/:pageNo/:category", async (req, res) => {
+app.get("/get-all-posts/:request_user_id/:pageNo/:category/:term", async (req, res) => {
     try {
         const {request_user_id, pageNo, category} = req.params
         const start = (pageNo - 1) * 10;
+        let {term} = req.params;
+
+        term = (term === "null")?"":term;
+
+        // console.log({request_user_id, pageNo, category, term})
 
         let allpost = null;
-        if (category === "All") allPosts = await (await pool).query('select * from posts order by date_created desc limit ?,10', [start]);
-        else allPosts = await (await pool).query('select * from posts where category = ? order by date_created desc limit ?,10', [category, start]);
+        if (category === "All") allPosts = await (await pool).query('select * from posts where title like ? order by date_created desc limit ?,10', [`%${term}%`, start]);
+        else allPosts = await (await pool).query('select * from posts where category = ? and title like ? order by date_created desc limit ?,10', [category, `%${term}%`, start]);
 
         const postData = []
 

@@ -7,32 +7,13 @@
 ** React-js
 ** MariaDB
 
-* Client side
-** DONE Navbar
-** DONE Login
-** DONE Sign-Up
-** TODO Logout -> Login
-** TODO Profile page
-** HOLD Landing Page
-** STRT Add Post
-** HOLD Edit Profile
-
-* Backend
-** HOLD Login [0/2]
-*** [ ] filter by email
-*** [ ] filter by username
-** HOLD Sign up
-** HOLD Posts [0/2]
-*** [ ] filter posts by following
-*** [ ] get posts by date
-
 * Assumptions/ for Database
 ** Limitations
 + First name should not exceed 100 words.
 + Last name should not exceed 100 words.
 + Email should not exceed 100 words.
 + Username should not exceed 100 words.
-+ Image size is limit to 10MB.
++ Total form size should not exceed 10MB in size.
 + Post text should not exceed 10000.
 + Category should not exceed 100 word.
   - We are thinking of making it ENUM.
@@ -46,7 +27,6 @@
 + Every post must have ingredients, instructions, and photos for the dish.
 
 ** Database Assumptions
-+ User can/cannot have followings.
 + Initially the post like will set to zero.
 + Initially the post comments will set to None.
 + No post can exist with user.
@@ -54,3 +34,8 @@
 ** Other Issues
 + We can make ingredient weak entity if we can implement markdown.
 + We can make instructions weak entity if we can implement markdown.
+
+* Some Listed feature
++ Full control on the post using markdown.
++ Searching of post
++ Logged in user can chat, call, video-call, group chat with each other.
